@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTA Bus Stops — School Board District 10A</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&f[]=general-sans@600,500&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --font-body: 'Satoshi', 'Helvetica Neue', sans-serif;
+    --font-display: 'General Sans', 'Helvetica Neue', sans-serif;
+
+    --color-bg: #f5f5f4;
+    --color-surface: #ffffff;
+    --color-border: #d6d3d1;
+    --color-text: #1c1917;
+    --color-text-muted: #78716c;
+    --color-text-faint: #a8a29e;
+    --color-primary: #1e40af;
+    --color-primary-light: #3b82f6;
+    --color-primary-bg: rgba(30, 64, 175, 0.08);
+    --color-accent: #dc2626;
+    --color-district-fill: rgba(30, 64, 175, 0.06);
+    --color-district-stroke: #1e40af;
+
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,0.12);
+  }
+
+  [data-theme="dark"] {
+    --color-bg: #0c0a09;
+    --color-surface: #1c1917;
+    --color-border: #44403c;
+    --color-text: #e7e5e4;
+    --color-text-muted: #a8a29e;
+    --color-text-faint: #78716c;
+    --color-primary: #60a5fa;
+    --color-primary-light: #93c5fd;
+    --color-primary-bg: rgba(96, 165, 250, 0.1);
+    --color-accent: #ef4444;
+    --color-district-fill: rgba(96, 165, 250, 0.08);
+    --color-district-stroke: #60a5fa;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  html { -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    z-index: 1000;
+    flex-shrink: 0;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .header h1 span {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--color-primary-bg);
+    color: var(--color-primary);
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: background 150ms, color 150ms;
+    border: none;
+    background: none;
+  }
+  .icon-btn:hover { background: var(--color-primary-bg); color: var(--color-primary); }
+
+  /* Main Layout */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 500;
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-340px);
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+  }
+
+  .sidebar-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+    font-size: 14px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    outline: none;
+    transition: border-color 150ms;
+  }
+  .search-box input:focus { border-color: var(--color-primary); }
+  .search-box input::placeholder { color: var(--color-text-faint); }
+
+  .search-box svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-faint);
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filter-row select {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 13px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    cursor: pointer;
+    outline: none;
+  }
+  .filter-row select:focus { border-color: var(--color-primary); }
+
+  .stop-count {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  /* Stop list */
+  .stop-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .stop-list::-webkit-scrollbar { width: 4px; }
+  .stop-list::-webkit-scrollbar-track { background: transparent; }
+  .stop-list::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+  .stop-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background 100ms;
+  }
+  .stop-item:hover { background: var(--color-primary-bg); }
+  .stop-item.active { background: var(--color-primary-bg); border-left: 3px solid var(--color-primary); padding-left: 13px; }
+
+  .stop-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+
+  .stop-item-meta {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .route-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 3px;
+    line-height: 1.5;
+  }
+
+  [data-theme="dark"] .route-chip {
+    background: var(--color-primary);
+    color: #0c0a09;
+  }
+
+  .dir-label {
+    font-size: 11px;
+    color: var(--color-text-faint);
+    font-weight: 500;
+  }
+
+  /* Map */
+  #map {
+    flex: 1;
+    z-index: 1;
+  }
+
+  /* Custom marker */
+  .bus-marker {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-primary, #1e40af);
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  .bus-marker.highlighted {
+    width: 16px;
+    height: 16px;
+    background: #dc2626;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.3), 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 1000 !important;
+  }
+
+  /* Cluster styles */
+  .marker-cluster-small {
+    background-color: rgba(30, 64, 175, 0.2) !important;
+  }
+  .marker-cluster-small div {
+    background-color: #1e40af !important;
+    color: #fff !important;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .marker-cluster-medium {
+    background-color: rgba(30, 64, 175, 0.25) !important;
+  }
+  .marker-cluster-medium div {
+    background-color: #1e3a8a !important;
+    color: #fff !important;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .marker-cluster-large {
+    background-color: rgba(30, 64, 175, 0.3) !important;
+  }
+  .marker-cluster-large div {
+    background-color: #172554 !important;
+    color: #fff !important;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  [data-theme="dark"] .marker-cluster-small { background-color: rgba(96,165,250,0.2) !important; }
+  [data-theme="dark"] .marker-cluster-small div { background-color: #3b82f6 !important; color: #0c0a09 !important; }
+  [data-theme="dark"] .marker-cluster-medium { background-color: rgba(96,165,250,0.25) !important; }
+  [data-theme="dark"] .marker-cluster-medium div { background-color: #2563eb !important; color: #fff !important; }
+  [data-theme="dark"] .marker-cluster-large { background-color: rgba(96,165,250,0.3) !important; }
+  [data-theme="dark"] .marker-cluster-large div { background-color: #1d4ed8 !important; color: #fff !important; }
+
+  /* Leaflet popup */
+  .leaflet-popup-content-wrapper {
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-lg) !important;
+    font-family: var(--font-body) !important;
+    padding: 0 !important;
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+  .popup-inner {
+    padding: 12px 14px;
+  }
+  .popup-inner strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .popup-inner .popup-meta {
+    color: #78716c;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  .popup-routes {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  /* Toggle sidebar on mobile */
+  .sidebar-toggle {
+    display: none;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 600;
+    width: 40px;
+    height: 40px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    color: var(--color-text);
+  }
+
+  /* Footer */
+  .footer {
+    padding: 6px 16px;
+    font-size: 11px;
+    color: var(--color-text-faint);
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .footer a { color: var(--color-text-muted); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 300px;
+      box-shadow: var(--shadow-lg);
+    }
+    .sidebar.collapsed { transform: translateX(-300px); }
+    .sidebar-toggle { display: flex; }
+    .header h1 { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+    </svg>
+    <h1>CTA Bus Stops <span>— District 10A</span></h1>
+    <span class="badge" id="total-badge">465 stops</span>
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" data-theme-toggle aria-label="Toggle dark mode">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="main">
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+  </button>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search" placeholder="Search stop name or street...">
+      </div>
+      <div class="filter-row">
+        <select id="route-filter">
+          <option value="">All Routes</option>
+        </select>
+        <select id="dir-filter">
+          <option value="">All Directions</option>
+          <option value="NB">Northbound</option>
+          <option value="SB">Southbound</option>
+          <option value="EB">Eastbound</option>
+          <option value="WB">Westbound</option>
+        </select>
+        <span class="stop-count" id="visible-count">465</span>
+      </div>
+    </div>
+    <div class="stop-list" id="stop-list"></div>
+  </aside>
+
+  <div id="map"></div>
+</div>
+
+<footer class="footer">
+  Data: CTA Bus Stops via Chicago Data Portal · District boundary from Chicago Board of Elections ·
+  <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+</footer>
+
+<script>
+(function() {
+  // Theme toggle
+  const toggle = document.querySelector('[data-theme-toggle]');
+  const root = document.documentElement;
+  let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  root.setAttribute('data-theme', theme);
+
+  toggle.addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', theme);
+    updateTileLayer();
+    toggle.innerHTML = theme === 'dark'
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  });
+
+  // Sidebar toggle (mobile)
+  const sidebar = document.getElementById('sidebar');
+  document.getElementById('sidebar-toggle').addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+  });
+
+  // Map setup
+  const map = L.map('map', {
+    zoomControl: false,
+  }).setView([41.79, -87.595], 13);
+
+  L.control.zoom({ position: 'topright' }).addTo(map);
+
+  let tileLayer;
+  function updateTileLayer() {
+    if (tileLayer) map.removeLayer(tileLayer);
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    tileLayer = L.tileLayer(
+      isDark
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>', maxZoom: 19 }
+    ).addTo(map);
+  }
+  updateTileLayer();
+
+  // Data
+  let allStops = [];
+  let markers = {};
+  let clusterGroup;
+  let activeStopIdx = null;
+  let boundaryLayer;
+
+  const routeColors = {};
+  const palette = [
+    '#1e40af','#dc2626','#059669','#d97706','#7c3aed','#db2777',
+    '#0891b2','#65a30d','#ea580c','#6366f1','#be185d','#0d9488',
+    '#b91c1c','#4338ca','#ca8a04','#c026d3','#0284c7','#16a34a',
+    '#9333ea','#e11d48','#0e7490','#a16207','#7e22ce','#15803d',
+    '#b45309','#4f46e5','#be123c','#0f766e','#a21caf'
+  ];
+
+  function getRouteColor(route) {
+    if (!routeColors[route]) {
+      const idx = Object.keys(routeColors).length % palette.length;
+      routeColors[route] = palette[idx];
+    }
+    return routeColors[route];
+  }
+
+  function createMarkerIcon(highlighted) {
+    return L.divIcon({
+      className: '',
+      html: `<div class="bus-marker${highlighted ? ' highlighted' : ''}"></div>`,
+      iconSize: highlighted ? [16, 16] : [10, 10],
+      iconAnchor: highlighted ? [8, 8] : [5, 5],
+    });
+  }
+
+  function popupContent(stop) {
+    const routes = stop.routes.split(',').map(r => r.trim()).filter(Boolean);
+    const chips = routes.map(r => `<span class="route-chip" style="background:${getRouteColor(r)}">${r}</span>`).join('');
+    const dirMap = { NB: 'Northbound', SB: 'Southbound', EB: 'Eastbound', WB: 'Westbound' };
+    return `<div class="popup-inner">
+      <strong>${stop.name}</strong>
+      <div class="popup-meta">${dirMap[stop.dir] || stop.dir} · ${stop.street} at ${stop.cross}</div>
+      <div class="popup-routes">${chips}</div>
+    </div>`;
+  }
+
+  // Load data
+  Promise.all([
+    fetch('stops.json').then(r => r.json()),
+    fetch('boundary.json').then(r => r.json()),
+  ]).then(([stops, boundary]) => {
+    allStops = stops;
+
+    // District boundary
+    boundaryLayer = L.geoJSON(boundary, {
+      style: {
+        color: 'var(--color-district-stroke)',
+        weight: 2.5,
+        opacity: 0.7,
+        fillColor: 'var(--color-district-fill)',
+        fillOpacity: 0.15,
+        dashArray: '6 4',
+      }
+    }).addTo(map);
+
+    // Note: CSS vars don't work in Leaflet styles. Use computed values.
+    function updateBoundaryStyle() {
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      boundaryLayer.setStyle({
+        color: isDark ? '#60a5fa' : '#1e40af',
+        fillColor: isDark ? '#60a5fa' : '#1e40af',
+        fillOpacity: isDark ? 0.08 : 0.06,
+      });
+    }
+    updateBoundaryStyle();
+    toggle.addEventListener('click', () => setTimeout(updateBoundaryStyle, 50));
+
+    // Collect routes
+    const routeSet = new Set();
+    stops.forEach(s => s.routes.split(',').forEach(r => { r = r.trim(); if (r) routeSet.add(r); }));
+    const sortedRoutes = [...routeSet].sort((a, b) => {
+      const na = parseInt(a), nb = parseInt(b);
+      if (!isNaN(na) && !isNaN(nb)) return na - nb;
+      if (!isNaN(na)) return -1;
+      if (!isNaN(nb)) return 1;
+      return a.localeCompare(b);
+    });
+
+    const routeFilter = document.getElementById('route-filter');
+    sortedRoutes.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = `Route ${r}`;
+      routeFilter.appendChild(opt);
+    });
+
+    // Create markers
+    clusterGroup = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 16,
+    });
+
+    stops.forEach((stop, idx) => {
+      const marker = L.marker([stop.lat, stop.lng], { icon: createMarkerIcon(false) });
+      marker.bindPopup(popupContent(stop), { maxWidth: 280 });
+      marker.on('click', () => selectStop(idx, false));
+      markers[idx] = marker;
+      clusterGroup.addLayer(marker);
+    });
+
+    map.addLayer(clusterGroup);
+    renderList();
+  });
+
+  // Filters
+  const searchInput = document.getElementById('search');
+  const routeFilter = document.getElementById('route-filter');
+  const dirFilter = document.getElementById('dir-filter');
+
+  function getFilteredIndices() {
+    const q = searchInput.value.toLowerCase().trim();
+    const route = routeFilter.value;
+    const dir = dirFilter.value;
+
+    return allStops.reduce((acc, stop, idx) => {
+      if (q && !stop.name.toLowerCase().includes(q) && !stop.street.toLowerCase().includes(q) && !stop.cross.toLowerCase().includes(q)) return acc;
+      if (route && !stop.routes.split(',').map(r => r.trim()).includes(route)) return acc;
+      if (dir && stop.dir !== dir) return acc;
+      acc.push(idx);
+      return acc;
+    }, []);
+  }
+
+  function renderList() {
+    const indices = getFilteredIndices();
+    const listEl = document.getElementById('stop-list');
+    document.getElementById('visible-count').textContent = indices.length;
+    document.getElementById('total-badge').textContent = `${indices.length} stop${indices.length !== 1 ? 's' : ''}`;
+
+    // Update cluster group
+    clusterGroup.clearLayers();
+    indices.forEach(idx => clusterGroup.addLayer(markers[idx]));
+
+    // Build list HTML
+    const frag = document.createDocumentFragment();
+    indices.forEach(idx => {
+      const stop = allStops[idx];
+      const div = document.createElement('div');
+      div.className = 'stop-item' + (idx === activeStopIdx ? ' active' : '');
+      div.dataset.idx = idx;
+
+      const routes = stop.routes.split(',').map(r => r.trim()).filter(Boolean);
+      const chips = routes.map(r => `<span class="route-chip" style="background:${getRouteColor(r)}">${r}</span>`).join(' ');
+
+      div.innerHTML = `
+        <div class="stop-item-name">${stop.name}</div>
+        <div class="stop-item-meta">
+          <span class="dir-label">${stop.dir}</span>
+          ${chips}
+        </div>
+      `;
+
+      div.addEventListener('click', () => selectStop(idx, true));
+      frag.appendChild(div);
+    });
+
+    listEl.innerHTML = '';
+    listEl.appendChild(frag);
+  }
+
+  function selectStop(idx, flyTo) {
+    // Reset previous
+    if (activeStopIdx !== null && markers[activeStopIdx]) {
+      markers[activeStopIdx].setIcon(createMarkerIcon(false));
+    }
+
+    activeStopIdx = idx;
+    const stop = allStops[idx];
+    markers[idx].setIcon(createMarkerIcon(true));
+
+    if (flyTo) {
+      map.flyTo([stop.lat, stop.lng], 17, { duration: 0.5 });
+    }
+
+    markers[idx].openPopup();
+
+    // Update active state in list
+    document.querySelectorAll('.stop-item.active').forEach(el => el.classList.remove('active'));
+    const activeEl = document.querySelector(`.stop-item[data-idx="${idx}"]`);
+    if (activeEl) {
+      activeEl.classList.add('active');
+      activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  let debounceTimer;
+  function onFilterChange() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(renderList, 150);
+  }
+
+  searchInput.addEventListener('input', onFilterChange);
+  routeFilter.addEventListener('change', onFilterChange);
+  dirFilter.addEventListener('change', onFilterChange);
+})();
+</script>
+</body>
+</html>
